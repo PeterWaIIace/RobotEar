@@ -1,10 +1,3 @@
 environment/*
 tmp_audio/*.wav
-decode_audio/tmp_output_4.wav
-decode_audio/tmp_output_3.wav
-decode_audio/tmp_output_2.wav
-decode_audio/tmp_output_1.wav
-decode_audio/tmp_output_0.wav
-decode_audio/tmp_output_6.wav
-decode_audio/tmp_output_5.wav
-decode_audio/tmp_output_7.wav
+config.json

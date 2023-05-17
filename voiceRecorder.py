@@ -28,7 +28,6 @@ class voice2Speech:
         self.frames = np.array([[],[]])
         self.model_whisper = whisper.load_model("base")
         self.accepted_prob = 0.5
-        self.predicted_texts = ""
         self.audio_path = "tmp_stream.wav"
 
 
@@ -52,6 +51,7 @@ class voice2Speech:
         pass
 
     def process(self):
+        predicted_texts = ""
         tmp_frames = self.frames.copy()
         self.frames = np.array([[],[]])
 
@@ -64,12 +64,12 @@ class voice2Speech:
             # checking only 0 segment - is it possible to get more than one segment?
             if len(prediction["segments"]):
                 if prediction["segments"][0]["no_speech_prob"] < self.accepted_prob:
-                    self.predicted_texts = ''.join([prediction["text"]])
+                    predicted_texts = ''.join([prediction["text"]])
 
             if platform == "win32" or platform == "win64":
                 os.system(f"del {self.audio_path}")
 
-        return self.predicted_texts
+        return predicted_texts
 
     def close(self):
         # Close stream (4)
