@@ -14,76 +14,78 @@ from sys import platform
 class voice2Speech:
 
     def __init__(self):
-        pass
-
-    def dwa(self):
-            pass
-
-if __name__ == "__main__":
-    # chunk = 1024  # Record in chunks of 1024 samples
-    channels = 2
-    fs = 44100  # Record at 44100 samples per second
-    # fs = 16000  # Record at 44100 samples per second
-    # seconds = 3
-    tmp_path = "tmp_audio"
-    filename = "output.wav"
-    fileIterator = 0
-    maxFiles = 10
-    stop = False
-
-    max_buff_size = fs*10
-    frames = np.array([[],[]])
-
-    model_whisper = whisper.load_model("base")
-    accepted_prob = 0.5
-
-    predicted_texts = ""
+        # chunk = 1024  # Record in chunks of 1024 samples
+        self.channels = 2
+        self.fs = 44100  # Record at 44100 samples per second
+        # fs = 16000  # Record at 44100 samples per second
+        # seconds = 3
+        self.tmp_path = "tmp_audio"
+        self.filename = "output.wav"
+        self.fileIterator = 0
+        self.maxFiles = 10
+        self.stop = False
+        self.max_buff_size = self.fs*10
+        self.frames = np.array([[],[]])
+        self.model_whisper = whisper.load_model("base")
+        self.accepted_prob = 0.5
+        self.predicted_texts = ""
+        self.audio_path = "tmp_stream.wav"
 
 
-    def callback(in_data, frame_count, time_info, status):
-        global frames
+    def __callback(self,in_data, frame_count, time_info, status):
         audio_data = np.frombuffer(in_data, dtype=np.float32)
         audio_data = np.array([audio_data[1::2],audio_data[::2]])
-        frames = np.append(frames,audio_data,axis=1)
+        self.frames = np.append(self.frames,audio_data,axis=1)
         return (in_data, pyaudio.paContinue)
 
-    # Instantiate PyAudio and initialize PortAudio system resources (2)
-    p = pyaudio.PyAudio()
+    def listen(self):
+        # Instantiate PyAudio and initialize PortAudio system resources (2)
+        self.p = pyaudio.PyAudio()
 
-    # Open stream using callback (3)
-    stream = p.open(format=pyaudio.paFloat32,
-                    channels=channels,
-                    rate=fs,
-                    input=True,
-                    stream_callback=callback)
+        # Open stream using callback (3)
+        self.stream = self.p.open(format=pyaudio.paFloat32,
+                        channels=self.channels,
+                        rate=self.fs,
+                        input=True,
+                        stream_callback=self.__callback)
 
-    for n in range(10):
-        audio_path = "tmp_stream.wav"
-        tmp_frames = frames.copy()
-        frames = np.array([[],[]])
+        pass
+
+    def process(self):
+        tmp_frames = self.frames.copy()
+        self.frames = np.array([[],[]])
 
         # Write wav data to the temporary file as bytes.
-        sf.write(f"{audio_path}",tmp_frames.T,fs)
+        sf.write(f"{self.audio_path}",tmp_frames.T,self.fs)
 
-        if os.path.exists(audio_path):
-            prediction = model_whisper.transcribe(f"{audio_path}")
+        if os.path.exists(self.audio_path):
+            prediction = self.model_whisper.transcribe(f"{self.audio_path}")
 
             # checking only 0 segment - is it possible to get more than one segment?
             if len(prediction["segments"]):
-                if prediction["segments"][0]["no_speech_prob"] < accepted_prob:
-                    predicted_texts = ''.join([predicted_texts,prediction["text"]])
+                if prediction["segments"][0]["no_speech_prob"] < self.accepted_prob:
+                    self.predicted_texts = ''.join([prediction["text"]])
 
             if platform == "win32" or platform == "win64":
-                os.system(f"del {audio_path}")
+                os.system(f"del {self.audio_path}")
 
-            print(predicted_texts)
+        return self.predicted_texts
 
-        time.sleep(1)
+    def close(self):
+        # Close stream (4)
+        self.stream.close()
 
+        # Release PortAudio system resources (5)
+        self.p.terminate()
 
-    # Close stream (4)
-    stream.close()
+if __name__ == "__main__":
 
-    # Release PortAudio system resources (5)
-    p.terminate()
-    pass
+    v2s = voice2Speech()
+    v2s.listen()
+
+    for n in range(100000):
+        text = v2s.process()
+        print(text)
+        time.sleep(0.1)
+
+    v2s.close()
