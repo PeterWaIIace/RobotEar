@@ -1,92 +1,89 @@
-from threading import Thread
 from queue import Queue
+import numpy as np
+import whisper
+import wave
+import time
+import sys
 
-import sounddevice as sd
 import soundfile as sf
+import pyaudio
 import os
 
 from sys import platform
 
-class CommandRecorder:
+class voice2Speech:
 
     def __init__(self):
-        self.chunk = 1024  # Record in chunks of 1024 samples
-        self.channels = 2
-        self.fs = 44100  # Record at 44100 samples per second
-        self.seconds = 3
-        self.tmp_path = "tmp_audio"
-        self.filename = "output.wav"
-        self.fileIterator = 0
-        self.maxFiles = 10
-        self.stop = False
-
-        self.comm_queue = Queue()  # Create an interface to PortAudio
-
-        # clean tmp directory
-        self.__clean_tmp()
-
-        print('Recording')
-
         pass
 
-    def __record(self):
-        while not self.stop:
+    def dwa(self):
+            pass
 
-            myrecording = sd.rec(int(self.seconds * self.fs), samplerate=self.fs, channels=self.channels, blocking=True)
-            self.comm_queue.put(myrecording)
+if __name__ == "__main__":
+    # chunk = 1024  # Record in chunks of 1024 samples
+    channels = 2
+    fs = 44100  # Record at 44100 samples per second
+    # fs = 16000  # Record at 44100 samples per second
+    # seconds = 3
+    tmp_path = "tmp_audio"
+    filename = "output.wav"
+    fileIterator = 0
+    maxFiles = 10
+    stop = False
 
+    max_buff_size = fs*10
+    frames = np.array([[],[]])
 
-    def __save(self):
-        while not self.stop:
-            if self.comm_queue.qsize() > 0:
-                self.filename = f"{self.tmp_path}\\tmp_output_{self.fileIterator}.wav"
+    model_whisper = whisper.load_model("base")
+    accepted_prob = 0.5
 
-                myRecording = self.comm_queue.get()
-                sf.write(self.filename, myRecording, self.fs)
-
-                self.fileIterator+=1
-                self.fileIterator%=self.maxFiles
-
-                if not self.fileIterator:
-                    self.__clean_tmp()
-
-
-    def record(self):
-        self.stop = False
-
-        # clean tmp directory
-        self.__clean_tmp()
-
-        print("start recording")
-        self.tRecord = Thread(target=self.__record)
-        self.tSave   = Thread(target=self.__save)
-
-        self.tRecord.start()
-        self.tSave.start()
+    predicted_texts = ""
 
 
-    def __clean_tmp(self):
-        dir_list = os.listdir(self.tmp_path)
+    def callback(in_data, frame_count, time_info, status):
+        global frames
+        audio_data = np.frombuffer(in_data, dtype=np.float32)
+        audio_data = np.array([audio_data[1::2],audio_data[::2]])
+        frames = np.append(frames,audio_data,axis=1)
+        return (in_data, pyaudio.paContinue)
 
-        for f in dir_list:
+    # Instantiate PyAudio and initialize PortAudio system resources (2)
+    p = pyaudio.PyAudio()
+
+    # Open stream using callback (3)
+    stream = p.open(format=pyaudio.paFloat32,
+                    channels=channels,
+                    rate=fs,
+                    input=True,
+                    stream_callback=callback)
+
+    for n in range(10):
+        audio_path = "tmp_stream.wav"
+        tmp_frames = frames.copy()
+        frames = np.array([[],[]])
+
+        # Write wav data to the temporary file as bytes.
+        sf.write(f"{audio_path}",tmp_frames.T,fs)
+
+        if os.path.exists(audio_path):
+            prediction = model_whisper.transcribe(f"{audio_path}")
+
+            # checking only 0 segment - is it possible to get more than one segment?
+            if len(prediction["segments"]):
+                if prediction["segments"][0]["no_speech_prob"] < accepted_prob:
+                    predicted_texts = ''.join([predicted_texts,prediction["text"]])
+
             if platform == "win32" or platform == "win64":
-                os.system(f"del {self.tmp_path}\\{f}")
+                os.system(f"del {audio_path}")
 
-    def close(self):
-        self.stop = True
+            print(predicted_texts)
 
-        self.tRecord.join()
-        self.tSave.join()
+        time.sleep(1)
 
-        # Stop and close the stream
-        # self.stream.stop_stream()
-        # self.stream.close()
 
-        # Terminate the PortAudio interface
-        # self.p.terminate()
-        print("closed")
+    # Close stream (4)
+    stream.close()
 
-        # self.__clean_tmp()
-
-    def __del__(self):
-        self.close()
+    # Release PortAudio system resources (5)
+    p.terminate()
+    pass
