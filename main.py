@@ -22,13 +22,17 @@ if __name__ == "__main__":
 
         if len(text) > 250 or (len(text) and elapsedTime > 5):
             response = brain.process(text)
+            print(response)
             text = response["response"]
             command = response["command"]
 
+            v2s.pause()
             engine.say(text)
             engine.runAndWait()
+            v2s.start()
             start = time.time()
             v2s.cleanVoiceFile()
+
 
         elapsedTime = time.time() - start
         time.sleep(0.01)

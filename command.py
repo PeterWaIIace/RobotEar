@@ -6,7 +6,7 @@ class CommandManager:
         self.config = {
             "search" : "search.py",
             "move"   : "move.py",
-            "find"   : "search.py"
+            "time"   : "time.py"
         }
 
     def getCommands(self):
