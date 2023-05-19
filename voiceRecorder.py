@@ -26,7 +26,7 @@ class voice2Speech:
         self.stop = False
         self.max_buff_size = self.fs*10
         self.frames = np.array([[],[]])
-        self.model_whisper = whisper.load_model("base")
+        self.model_whisper = whisper.load_model("base.en")
         self.accepted_prob = 0.5
         self.audio_path = "tmp_stream.wav"
 
@@ -48,12 +48,9 @@ class voice2Speech:
                         input=True,
                         stream_callback=self.__callback)
 
-        pass
-
     def process(self):
         predicted_texts = ""
         tmp_frames = self.frames.copy()
-        self.frames = np.array([[],[]])
 
         # Write wav data to the temporary file as bytes.
         sf.write(f"{self.audio_path}",tmp_frames.T,self.fs)
@@ -66,10 +63,14 @@ class voice2Speech:
                 if prediction["segments"][0]["no_speech_prob"] < self.accepted_prob:
                     predicted_texts = ''.join([prediction["text"]])
 
-            if platform == "win32" or platform == "win64":
-                os.system(f"del {self.audio_path}")
 
         return predicted_texts
+
+    def cleanVoiceFile(self):
+        self.frames = np.array([[],[]])
+        if platform == "win32" or platform == "win64":
+            os.system(f"del {self.audio_path}")
+
 
     def close(self):
         # Close stream (4)
