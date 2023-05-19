@@ -1,49 +1,10 @@
 
 from voiceRecorder import voice2Speech
-import time
-import json
-import openai
-import pyttsx3
-
+from brain import ChatBrain
 from os.path import exists
-class ChatBrain():
 
-    def __init__(self,listOfCommands="search,look,sleep",configFile="config.json"):
-
-        self.listOfCommands = listOfCommands
-        config = {"organization":"","apiKey":""}
-        with open(configFile, "r") as f:
-            config = json.load(f)
-
-        openai.organization = config["organization"]
-        openai.api_key = config["apiKey"]
-
-
-    def process(self, prompt):
-        messages = [
-            {"role" : "system", "content" :
-             f"You are robot processing speech commands. User will communicate with text transcribed from speech."\
-             f"If you will detect that user want any of following actions `{self.listOfCommands}`, then you need to fill COMMAND field with it." \
-             f"If none of commands is detected, then respond to user and fill COMMAND field with None." \
-             f"Follow that response pattern: RESPONSE: <Robot Response> COMMAND: <Robot command>"
-            },
-            {
-              "role" : "user",
-              "content" : f"User transcribed speech: `{prompt}` "
-            }
-            ]
-
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=messages,
-            temperature=0.75,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
-        return completion["choices"][0].message
-
+import time
+import pyttsx3
 
 if __name__ == "__main__":
 
@@ -52,7 +13,6 @@ if __name__ == "__main__":
     v2s = voice2Speech()
     v2s.listen()
 
-
     elapsedTime = 0
     start = time.time()
     text = ""
@@ -60,12 +20,12 @@ if __name__ == "__main__":
         text = v2s.process()
         print(text)
 
-        if len(text) > 250 or (len(text) and elapsedTime > 10):
-            print(f"text: {text}")
-            response = brain.process(text)["content"]
+        if len(text) > 250 or (len(text) and elapsedTime > 5):
+            response = brain.process(text)
+            text = response["response"]
+            command = response["command"]
 
-            print(response)
-            engine.say(response)
+            engine.say(text)
             engine.runAndWait()
             start = time.time()
             v2s.cleanVoiceFile()

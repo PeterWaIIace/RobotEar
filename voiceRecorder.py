@@ -66,6 +66,17 @@ class voice2Speech:
 
         return predicted_texts
 
+    def pause(self):
+        self.stream.close()
+
+    def start(self):
+        # Open stream using callback (3)
+        self.stream = self.p.open(format=pyaudio.paFloat32,
+                        channels=self.channels,
+                        rate=self.fs,
+                        input=True,
+                        stream_callback=self.__callback)
+
     def cleanVoiceFile(self):
         self.frames = np.array([[],[]])
         if platform == "win32" or platform == "win64":
