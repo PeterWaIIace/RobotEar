@@ -78,3 +78,29 @@ class ChatBrain():
         })
 
         return self.completion2Dict(completion["choices"][0].message['content'])
+
+
+    def updateCommand(self,update,command):
+        self.messages.append(
+            {
+              "role" : "user",
+              "content" : f"This is updated output of executed command {command}: `{update}`. If this changes output of previous response, please send updated response text and COMMAND field filled with EXECUTED. Otherwise send same response as previous one."
+            }
+        )
+
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=self.messages,
+            temperature=0.75,
+            max_tokens=256,
+            top_p=1,
+            frequency_penalty=0,
+            presence_penalty=0
+        )
+
+        self.messages.append({
+            "role":"assistant",
+            "content": completion["choices"][0].message['content']
+        })
+
+        return self.completion2Dict(completion["choices"][0].message['content'])

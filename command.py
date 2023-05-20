@@ -6,7 +6,8 @@ class CommandManager:
         self.config = {
             "search" : "search.py",
             "move"   : "move.py",
-            "time"   : "time.py"
+            "time"   : "time /T",
+            "date"   : "date /T"
         }
 
     def getCommands(self):
@@ -14,4 +15,5 @@ class CommandManager:
 
     def execute(self, command):
         scriptName = self.config[command]
-        os.system(f"./{scriptName}")
+        output = os.system(f"./{scriptName}")
+        return output

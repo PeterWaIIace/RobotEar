@@ -1,5 +1,6 @@
 
 from voiceRecorder import voice2Speech
+from command import CommandManager
 from brain import ChatBrain
 from os.path import exists
 
@@ -9,7 +10,8 @@ import pyttsx3
 if __name__ == "__main__":
 
     engine = pyttsx3.init()
-    brain = ChatBrain()
+    cm = CommandManager()
+    brain = ChatBrain(listOfCommands=cm.getCommands())
     v2s = voice2Speech()
     v2s.listen()
 
@@ -25,6 +27,13 @@ if __name__ == "__main__":
             print(response)
             text = response["response"]
             command = response["command"]
+
+            if command != "None":
+                output = cm.execute(command)
+                print(f"command output: {output}")
+                response = brain.updateCommand(output,command)
+                text = response["response"]
+                command = response["command"]
 
             v2s.pause()
             engine.say(text)
