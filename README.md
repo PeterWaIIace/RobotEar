@@ -15,3 +15,4 @@ Minimal example of Chain of Thoughts - CoT
 
 Raspbian reqs: 
 `sudo apt-get install python3-pyaudio `
+`sudo apt install espeak`
