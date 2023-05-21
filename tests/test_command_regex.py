@@ -14,6 +14,5 @@ def test_commands():
     cb = ChatBrain()
     response = cb.completion2Dict("RESPONSE: I'm sorry, I don't understand what you mean. Could you please rephrase your command? \nCOMMAND: None")
 
-    print(response)
     assert(response["response"] == " I'm sorry, I don't understand what you mean. Could you please rephrase your command? \n")
     assert(response["command"] == "None")

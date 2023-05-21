@@ -7,7 +7,8 @@ Possible speech processing methods;
 - Whisper
 - DeepSpeech
 
-
 Possible usage:
 - on top of ROS
 - standalone
+
+Minimal example of Chain of Thoughts - CoT

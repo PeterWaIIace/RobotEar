@@ -22,23 +22,21 @@ class ChatBrain():
              "content" :
              f"You are robot processing speech commands. User will communicate with text transcribed from speech."\
              f"If you will detect that user want any of following actions `{self.listOfCommands}`, then you need to fill COMMAND field with it." \
+             f"You may need to guess user intentions which command should be used." \
              f"If none of commands is detected, then respond to user and fill COMMAND field with None." \
              f"Follow that response pattern: RESPONSE: <Robot Response> COMMAND: <Robot command>"
             }
         ]
 
     def __extractResponse(self,text):
-        print(f"{type(text)}, {text}")
         pattern = r'(?<=RESPONSE:).*(?=COMMAND)'
         match = re.search(pattern, text, re.DOTALL)
-        print(match)
         if match:
             return match.group(0)
         else:
             return None
 
     def __extractCommand(self,text):
-        print(f"{type(text)}, {text}")
         pattern = r'(?<=COMMAND: ).*'
         match = re.search(pattern, text, re.DOTALL)
         if match:
@@ -84,7 +82,7 @@ class ChatBrain():
         self.messages.append(
             {
               "role" : "user",
-              "content" : f"This is updated output of executed command {command}: `{update}`. If this changes output of previous response, please send updated response text and COMMAND field filled with EXECUTED. Otherwise send same response as previous one."
+              "content" : f"This is updated output of executed command {command}: `{update}`. Treat the output of executed command as always true. If this changes output of previous response, please send updated response text and COMMAND field filled with EXECUTED. Otherwise send same response as previous one."
             }
         )
 
