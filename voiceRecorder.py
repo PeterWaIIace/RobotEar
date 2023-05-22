@@ -26,7 +26,7 @@ class voice2Speech:
         self.stop = False
         self.max_buff_size = self.fs*10
         self.frames = np.array([[],[]])
-        self.model_whisper = whisper.load_model("base.en")
+        self.model_whisper = whisper.load_model("base.en", fp16=False)
         self.accepted_prob = 0.5
         self.audio_path = "tmp_stream.wav"
 
