@@ -41,12 +41,29 @@ class voice2Speech:
         # Instantiate PyAudio and initialize PortAudio system resources (2)
         self.p = pyaudio.PyAudio()
 
+        output_device_index = None
+        for i in range(self.p.get_device_count()):
+            info = self.p.get_device_info_by_index(i)
+            print(info)
+            if "bluez" in info["name"].lower():
+                print("bluez found")
+                output_device_index = info["index"]
+                break
+
         # Open stream using callback (3)
-        self.stream = self.p.open(format=pyaudio.paFloat32,
-                        channels=self.channels,
-                        rate=self.fs,
-                        input=True,
-                        stream_callback=self.__callback)
+        if output_device_index:
+            self.stream = self.p.open(format=pyaudio.paFloat32,
+                            channels=self.channels,
+                            rate=self.fs,
+                            input=True,
+                            stream_callback=self.__callback,
+                            output_device_index=output_device_index)
+        else:
+            self.stream = self.p.open(format=pyaudio.paFloat32,
+                            channels=self.channels,
+                            rate=self.fs,
+                            input=True,
+                            stream_callback=self.__callback)
 
     def process(self):
         predicted_texts = ""
