@@ -47,12 +47,8 @@ class voice2Speech:
             info = self.p.get_device_info_by_index(i)
             print(f"{i} : {info['name']}")
             device_indices.append(info["index"])
-            # if "bluez" in info["name"].lower():
-            #     print("bluez found")
-            #     output_device_index = info["index"]
-            #     break
 
-        index = input("choose sound input device")
+        index = input("choose sound input device: ")
         output_device_index = device_indices[int(index)]
 
         # Open stream using callback (3)

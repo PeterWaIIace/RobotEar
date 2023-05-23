@@ -60,15 +60,23 @@ class ChatBrain():
             }
         )
 
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=self.messages,
-            temperature=0.75,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
+        completion = None
+        try_again = 5
+        while(try_again):
+            try:
+                completion = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=self.messages,
+                    temperature=0.75,
+                    max_tokens=256,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0
+                )
+                try_again = 0
+            except Exception as e:
+                try_again-=1
+
 
         self.messages.append({
             "role":"assistant",
@@ -86,15 +94,22 @@ class ChatBrain():
             }
         )
 
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=self.messages,
-            temperature=0.75,
-            max_tokens=256,
-            top_p=1,
-            frequency_penalty=0,
-            presence_penalty=0
-        )
+        completion = None
+        try_again = 5
+        while(try_again):
+            try:
+                completion = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=self.messages,
+                    temperature=0.75,
+                    max_tokens=256,
+                    top_p=1,
+                    frequency_penalty=0,
+                    presence_penalty=0
+                )
+                try_again = 0
+            except Exception as e:
+                try_again-=1
 
         self.messages.append({
             "role":"assistant",
