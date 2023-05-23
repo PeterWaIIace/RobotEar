@@ -39,8 +39,10 @@ It is still work in progress, code can run on raspberryPi4 64bit but I do not ha
 To use whispher which is based on pytorch, you will need 64bit operating system. It can be easily obtained with rapsberrypi imager https://www.raspberrypi.com/software/. 
 
 ### 2. In raspbian install following requirements:
-`sudo apt-get install python3-pyaudio `
-`sudo apt install espeak`
+```
+sudo apt-get install python3-pyaudio
+sudo apt install espeak
+```
 
 ### 3. Install python dependencies: 
 ```
