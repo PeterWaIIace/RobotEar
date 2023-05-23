@@ -39,17 +39,21 @@ class voice2Speech:
 
     def listen(self):
         # Instantiate PyAudio and initialize PortAudio system resources (2)
+        device_indices = []
         self.p = pyaudio.PyAudio()
 
         output_device_index = None
         for i in range(self.p.get_device_count()):
             info = self.p.get_device_info_by_index(i)
-            print(info)
-            print("bcm2835 Headphones: - (hw:0,0)",info["name"].lower(),"bcm2835 Headphones: - (hw:0,0)" in info["name"].lower())
-            if "bcm2835 Headphones: - (hw:0,0)" in info["name"].lower():
-                print("bluez found")
-                output_device_index = info["index"]
-                break
+            print(f"{i} : {info['name']}")
+            device_indices.append(info["index"])
+            # if "bluez" in info["name"].lower():
+            #     print("bluez found")
+            #     output_device_index = info["index"]
+            #     break
+
+        index = input("choose sound input device")
+        output_device_index = device_indices[int(index)]
 
         # Open stream using callback (3)
         if output_device_index:
