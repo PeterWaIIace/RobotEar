@@ -6,6 +6,8 @@ https://github.com/PeterWaIIace/RobotEar/assets/40773550/685dc83e-c718-4cb8-b73c
 
 Minimal example of Chain of Thoughts - CoT
 
+## Architecture
+
 ## How to use it - Windows
 
 1. Install python dependencies: 
