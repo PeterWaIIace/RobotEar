@@ -45,7 +45,7 @@ class voice2Speech:
         for i in range(self.p.get_device_count()):
             info = self.p.get_device_info_by_index(i)
             print(info)
-            if "bluez" in info["name"].lower():
+            if "bcm2835 Headphones: - (hw:0,0)" in info["name"].lower():
                 print("bluez found")
                 output_device_index = info["index"]
                 break
