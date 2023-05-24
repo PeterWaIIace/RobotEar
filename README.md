@@ -99,6 +99,6 @@ pip install -r requirements.txt
 ##### 5. Run script `main.py`:
 
 ```
-python3 main.py
+python3 .\src\main.py
 ```
 After running wait for downloading whisper model. Script should ask you which audio input you want to use for, choose the one which is the most suitable for your application.
